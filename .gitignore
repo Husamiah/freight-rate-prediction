@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.venv/
+.ipynb_checkpoints/
+# assessment data is provided by the employer; place it in data/ (see README)
+data/*.csv

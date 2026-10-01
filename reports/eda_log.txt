@@ -1,0 +1,82 @@
+
+===== 1. Shape, ranges, missing values =====
+train (48000, 15) | validation (12000, 13)
+train dates 2025-01-01 -> 2025-10-31 | validation dates 2025-11-01 -> 2025-12-31
+missing train: {'weight': 300, 'market_index': 374} | missing validation: {'weight': 165, 'market_index': 249}
+duplicate rows (excluding id): 0
+
+===== 2. Target distribution =====
+{'count': 48000.0, 'mean': 2374.0, 'std': 1486.5, 'min': 57.2, '25%': 1251.6, '50%': 2030.8, '75%': 3330.8, 'max': 25533.0}
+skew raw 1.9 | skew log -0.49
+quantiles: {0.5: 2031.0, 0.9: 4366.0, 0.99: 5973.0, 0.999: 12855.0}
+corr(distance, rate) = 0.909
+
+===== 3. Rate per mile by equipment, distance band, month, weekday =====
+             count   mean    std    min    25%    50%    75%     max
+equipment                                                           
+Dry Van    27202.0  2.115  0.538  0.334  1.921  2.046  2.211  12.817
+Flatbed     8753.0  2.295  0.610  0.354  2.076  2.220  2.407  12.950
+Reefer     12045.0  2.383  0.615  0.386  2.168  2.312  2.495  14.125
+{Interval(0, 250, closed='right'): 2.745, Interval(250, 500, closed='right'): 2.423, Interval(500, 1000, closed='right'): 2.195, Interval(1000, 1500, closed='right'): 2.075, Interval(1500, 2000, closed='right'): 2.001, Interval(2000, 4000, closed='right'): 1.912}
+         n    rpm      rate  market_index  quote_signal
+date                                                   
+1     4918  2.029  1915.200         0.927         2.068
+2     4337  2.061  1994.250         0.996         2.097
+3     5036  2.139  2022.920         1.073         2.180
+4     4819  2.147  2044.240         1.208         1.963
+5     4913  2.190  2065.510         1.301         1.913
+6     4783  2.248  2120.220         1.280         2.296
+7     4912  2.187  2059.145         1.201         1.923
+8     4759  2.121  2015.730         0.981         2.052
+9     4670  2.160  2057.130         0.893         2.200
+10    4853  2.164  2035.900         0.958         1.943
+weekday median rpm: {0: 2.126, 1: 2.139, 2: 2.163, 3: 2.171, 4: 2.157, 5: 2.132, 6: 2.127}
+validation monthly feature means:
+          n  market_index  quote_signal  distance
+date                                            
+11    5836         0.919         2.055  1144.232
+12    6164         0.935         2.048  1139.445
+
+===== 4. Price spikes =====
+share rpm>4/5/8: {4: np.float64(0.0071), 5: np.float64(0.0066), 8: np.float64(0.003)}
+spikes: mean distance 1023 | share <500mi 0.26 | by equipment {'Dry Van': 0.56, 'Reefer': 0.25, 'Flatbed': 0.19}
+spikes by month: {1: 37, 2: 27, 3: 30, 4: 28, 5: 25, 6: 36, 7: 35, 8: 32, 9: 29, 10: 38}
+            pickup     delivery  distance equipment   weight       date  posted_rate        rpm
+22254   Greensboro   Cincinnati     314.7    Reefer -36485.0 2025-05-21      4445.23  14.125294
+36609  Chattanooga      Atlanta      98.4    Reefer  22226.0 2025-08-20      1386.42  14.089634
+870          Tulsa  Baton Rouge     305.6    Reefer  26447.0 2025-01-06      4069.24  13.315576
+17070       Toledo       Dayton     201.5   Flatbed  38714.0 2025-04-18      2609.34  12.949578
+27969      Buffalo       Boston     589.9    Reefer  24951.0 2025-06-25      7597.52  12.879335
+
+===== 5. Signals: market_index, quote_signal, weight (rpm < 5) =====
+corr with rpm: {'rpm': 1.0, 'market_index': 0.156, 'quote_signal': 0.091, 'weight': 0.143}
+rpm by market_index quintile: {Interval(0.675, 0.926, closed='right'): 2.093, Interval(0.926, 1.013, closed='right'): 2.1, Interval(1.013, 1.121, closed='right'): 2.127, Interval(1.121, 1.253, closed='right'): 2.172, Interval(1.253, 1.468, closed='right'): 2.219}
+rpm by quote_signal quintile (U-shape): {Interval(0.691, 1.851, closed='right'): 2.371, Interval(1.851, 1.994, closed='right'): 2.008, Interval(1.994, 2.118, closed='right'): 2.075, Interval(2.118, 2.266, closed='right'): 2.123, Interval(2.266, 3.61, closed='right'): 2.386}
+rpm by |weight| band: {Interval(0.0, 10000.0, closed='right'): 2.021, Interval(10000.0, 20000.0, closed='right'): 2.061, Interval(20000.0, 30000.0, closed='right'): 2.1, Interval(30000.0, 40000.0, closed='right'): 2.176, Interval(40000.0, 48000.0, closed='right'): 2.212}
+market_index within-day sd: 0.025 | across-day sd of daily mean: 0.167
+
+===== 6. Weight quality =====
+negative 292 | zero 0 | ==47,500 1191 | ==-47,500 13 | missing 300
+abs(negative weights) summary: {'count': 292.0, 'mean': 31724.0, 'std': 8263.0, 'min': 5000.0, '25%': 25928.0, '50%': 31822.0, '75%': 37284.0, 'max': 47500.0}
+validation: negative 145 | |w|>=47,500 301 | missing 165
+
+===== 7. Geography, lanes, distance consistency =====
+distance / haversine: {'count': 48000.0, 'mean': 1.195, 'std': 0.144, 'min': 1.058, '25%': 1.165, '50%': 1.182, '75%': 1.205, 'max': 9.635}
+one coordinate pair per city: {'pickup_lat': 1, 'pickup_lon': 1} | pickup==delivery rows: 0
+distinct lanes in train: 4014 | validation loads on unseen lanes: 1461
+
+===== 8. December inputs (what the scorer's fixed shipment needs) =====
+              n  market_index  quote_signal  mi_sd
+date                                              
+2025-12-01  203         0.835         2.052  0.025
+2025-12-04  202         1.024         2.066  0.023
+2025-12-07  200         0.831         2.050  0.024
+2025-12-10  197         0.999         2.048  0.027
+2025-12-13  222         0.897         2.063  0.025
+2025-12-16  208         0.924         2.066  0.024
+2025-12-19  227         0.989         2.033  0.024
+2025-12-22  191         0.860         2.024  0.027
+2025-12-25  200         1.045         2.054  0.023
+2025-12-28  183         0.858         2.047  0.023
+2025-12-31  193         1.027         2.009  0.026
+Lexington->Fort Wayne loads in train: 32 | median rate: 848.6099999999999

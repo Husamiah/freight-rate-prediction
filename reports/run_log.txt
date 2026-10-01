@@ -1,0 +1,38 @@
+[CV] day-level features=False: MAE 105.34 | MAPE_% 4.52 | medAPE_% 1.73 | RMSE 628.77
+[CV] day-level features=True : MAE 98.47 | MAPE_% 4.34 | medAPE_% 1.53 | RMSE 627.05
+-> chosen by CV: use_day = True
+
+[HOLD-OUT Sep-Oct]
+  lgbm          {'MAE': 109.3, 'MAPE_%': 4.65, 'medAPE_%': 2.0, 'RMSE': 634.9}
+  lgbm_linear   {'MAE': 119.92, 'MAPE_%': 4.9, 'medAPE_%': 2.24, 'RMSE': 637.77}
+  spline_ridge  {'MAE': 105.19, 'MAPE_%': 4.61, 'medAPE_%': 1.76, 'RMSE': 632.44}
+  blend         {'MAE': 100.8, 'MAPE_%': 4.35, 'medAPE_%': 1.58, 'RMSE': 632.8}
+
+  by equipment:
+              n     MAE  MAPE  medAPE
+equipment                            
+Dry Van    5360   99.84  4.16    1.55
+Flatbed    1770   96.02  4.63    1.74
+Reefer     2393  106.47  4.59    1.56
+
+  by distance_band:
+                  n     MAE  MAPE  medAPE
+distance_band                            
+(0, 250]        550   16.72  3.55    1.47
+(1000, 1500]   1760  116.74  4.20    1.61
+(1500, 2000]   1167  169.54  4.24    1.60
+(2000, 4000]   1534  180.48  4.08    1.60
+(250, 500]     1540   46.35  4.81    1.44
+(500, 1000]    2972   67.01  4.53    1.67
+
+  by month:
+          n     MAE  MAPE  medAPE
+month                            
+9      4670   97.10  3.85    1.46
+10     4853  104.36  4.83    1.72
+
+  last-window (Sep-Oct) excluding the 0.7% price spikes (rpm>5): {'MAE': 59.06, 'MAPE_%': 3.87, 'medAPE_%': 1.56, 'RMSE': 217.04}
+
+validation_predictions.csv: {'count': 12000.0, 'mean': 2343.9, 'std': 1356.7, 'min': 187.7, '25%': 1257.9, '50%': 2023.7, '75%': 3347.1, 'max': 6757.8}
+
+December predicted rate: min 801 | mean 819 | max 832 ; historical Lexington->Fort Wayne (n=32) median rate 849
